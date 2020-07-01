@@ -37,18 +37,19 @@ set(viewerlib_SRCS
 	src/SelectionBox.cpp
 	src/TrajectoryDrawer.cpp
 	src/ColorOcTreeDrawer.cpp
+	src/VirtualOcTreeDrawer.cpp
 )
 
 # sources for viewer binary
 set(viewer_SRCS
-	src/main.cpp	
+	src/main.cpp
 	src/ViewerGui.cpp
 	src/ViewerWidget.cpp
 	src/ViewerSettings.cpp
 	src/ViewerSettingsPanel.cpp
 	src/ViewerSettingsPanelCamera.cpp
 	src/CameraFollowMode.cpp
-)	
+)
 
 # Resource files (icons, ...)
 if(OCTOVIS_QT5)
@@ -98,15 +99,15 @@ endif(OCTOVIS_QT5)
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR})
 
 
-# Library target 
+# Library target
 add_library(octovis-static STATIC ${viewerlib_SRCS})
 target_link_libraries(octovis-static)
 set_target_properties(octovis-static PROPERTIES OUTPUT_NAME octovis)
 
 add_library(octovis-shared SHARED ${viewerlib_SRCS})
-target_link_libraries(octovis-shared 
-  ${OPENGL_gl_LIBRARY} 
-  ${OPENGL_glu_LIBRARY} 
+target_link_libraries(octovis-shared
+  ${OPENGL_gl_LIBRARY}
+  ${OPENGL_glu_LIBRARY}
   ${OCTOMAP_LIBRARIES}
   ${QGLViewer_LIBRARIES}
 )
@@ -128,7 +129,7 @@ endif()
 # If this is NOT done, then the ui_*.h files will not be generated
 add_executable(octovis ${viewer_SRCS} ${viewer_UIS_H} ${viewer_MOC_SRCS} ${viewer_RES})
 
-target_link_libraries(octovis 
+target_link_libraries(octovis
 #  ${QGLViewer_LIBRARIES}
   ${QT_LIBRARIES}
   ${OCTOMAP_LIBRARIES}
@@ -160,4 +161,3 @@ file(GLOB octovis_HDRS ${PROJECT_SOURCE_DIR}/include/octovis/*.h)
 # filter generated headers for GUI:
 list(REMOVE_ITEM octovis_HDRS ${viewer_MOC_HDRS} ${viewer_UIS_H})
 install(FILES ${octovis_HDRS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/octovis")
-

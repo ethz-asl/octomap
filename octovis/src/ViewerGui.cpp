@@ -28,6 +28,7 @@
 
 #include <octovis/ViewerGui.h>
 #include <octovis/ColorOcTreeDrawer.h>
+#include <octovis/VirtualOcTreeDrawer.h>
 #include <octomap/MapCollection.h>
 //Dummy object definition to ensure VS2012 does not drop the StaticMemberInitializer, causing this tree failing to register.
 octomap::ColorOcTree colortreeTmp(0);
@@ -43,10 +44,10 @@ ViewerGui::ViewerGui(const std::string& filename, QWidget *parent, unsigned int 
   m_trajectoryDrawer(NULL), m_pointcloudDrawer(NULL),
   m_cameraFollowMode(NULL),
   m_octreeResolution(0.1), m_laserMaxRange(-1.), m_occupancyThresh(0.5),
-  m_max_tree_depth(initDepth > 0 && initDepth <= 16 ? initDepth : 16), 
+  m_max_tree_depth(initDepth > 0 && initDepth <= 16 ? initDepth : 16),
   m_laserType(LASERTYPE_SICK),
   m_cameraStored(false),
-  m_filename("") 
+  m_filename("")
 {
 
   ui.setupUi(this);
@@ -183,17 +184,22 @@ bool ViewerGui::getOctreeRecord(int id, OcTreeRecord*& otr) {
 
 void ViewerGui::addOctree(octomap::AbstractOcTree* tree, int id, octomap::pose6d origin) {
   // is id in use?
+
       OcTreeRecord* r;
       bool foundRecord = getOctreeRecord(id, r);
       if (foundRecord && r->octree->getTreeType().compare(tree->getTreeType()) !=0){
         // delete old drawer, create new
         delete r->octree_drawer;
+
         if (dynamic_cast<OcTree*>(tree)) {
           r->octree_drawer = new OcTreeDrawer();
           //        fprintf(stderr, "adding new OcTreeDrawer for node %d\n", id);
         }
         else if (dynamic_cast<ColorOcTree*>(tree)) {
           r->octree_drawer = new ColorOcTreeDrawer();
+        }
+        else if (dynamic_cast<VirtualOcTree*>(tree)) {
+          r->octree_drawer = new VirtualOcTreeDrawer();
         } else{
           OCTOMAP_ERROR("Could not create drawer for tree type %s\n", tree->getTreeType().c_str());
         }
@@ -218,9 +224,14 @@ void ViewerGui::addOctree(octomap::AbstractOcTree* tree, int id, octomap::pose6d
         }
         else if (dynamic_cast<ColorOcTree*>(tree)) {
           otr.octree_drawer = new ColorOcTreeDrawer();
+        }
+        else if (dynamic_cast<VirtualOcTree*>(tree)) {
+          otr.octree_drawer = new VirtualOcTreeDrawer();
         } else{
           OCTOMAP_ERROR("Could not create drawer for tree type %s\n", tree->getTreeType().c_str());
         }
+        // otr.octree_drawer = new VirtualOcTreeDrawer();
+
         otr.octree = tree;
         otr.origin = origin;
         m_octrees[id] = otr;
@@ -671,9 +682,9 @@ void ViewerGui::on_actionOpen_file_triggered(){
                                                   tr("Open data file"), "",
                                                   "All supported files (*.graph *.bt *.ot *.dat);;OcTree file (*.ot);;Bonsai tree file (*.bt);;Binary scan graph (*.graph);;Pointcloud (*.dat);;All files (*)");
   if (!filename.isEmpty()){
-#ifdef _WIN32      
+#ifdef _WIN32
     m_filename = std::string(filename.toLocal8Bit().data());
-#else       
+#else
     m_filename = filename.toStdString();
 #endif
     openFile();
@@ -688,9 +699,9 @@ void ViewerGui::on_actionOpen_graph_incremental_triggered(){
   if (!filename.isEmpty()){
     m_glwidget->clearAll();
 
-#ifdef _WIN32      
+#ifdef _WIN32
     m_filename = std::string(filename.toLocal8Bit().data());
-#else       
+#else
     m_filename = filename.toStdString();
 #endif
 
@@ -718,9 +729,9 @@ void ViewerGui::on_actionSave_file_triggered(){
 
     QFileInfo fileinfo(filename);
     std::string std_filename;
-#ifdef _WIN32      
+#ifdef _WIN32
     std_filename = filename.toLocal8Bit().data();
-#else       
+#else
     std_filename = filename.toStdString();
 #endif
 
@@ -1233,5 +1244,3 @@ void ViewerGui::loadCameraPosition(const char* filename) {
 
 
 }
-
-

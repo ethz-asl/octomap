@@ -8,6 +8,7 @@ SET (octomap_SRCS
   OcTreeNode.cpp
   OcTreeStamped.cpp
   ColorOcTree.cpp
+  VirtualOcTree.cpp
   )
 
 # dynamic and static libs, see CMake FAQ:
@@ -17,7 +18,7 @@ set_target_properties( octomap PROPERTIES
   SOVERSION ${OCTOMAP_SOVERSION}
 )
 ADD_LIBRARY( octomap-static STATIC ${octomap_SRCS})
-SET_TARGET_PROPERTIES(octomap-static PROPERTIES OUTPUT_NAME "octomap") 
+SET_TARGET_PROPERTIES(octomap-static PROPERTIES OUTPUT_NAME "octomap")
 add_dependencies(octomap-static octomath-static)
 
 TARGET_LINK_LIBRARIES(octomap octomath)
@@ -36,6 +37,9 @@ TARGET_LINK_LIBRARIES(graph2tree octomap)
 
 ADD_EXECUTABLE(log2graph log2graph.cpp)
 TARGET_LINK_LIBRARIES(log2graph octomap)
+
+ADD_EXECUTABLE(insert_log2octree insert_log2octree.cpp)
+TARGET_LINK_LIBRARIES(insert_log2octree octomap)
 
 ADD_EXECUTABLE(binvox2bt binvox2bt.cpp)
 TARGET_LINK_LIBRARIES(binvox2bt octomap)
@@ -77,6 +81,7 @@ install(EXPORT octomap-targets DESTINATION "${CMAKE_INSTALL_DATADIR}/octomap")
 install(TARGETS
 	graph2tree
 	log2graph
+	insert_log2octree
 	binvox2bt
 	bt2vrml
 	edit_octree
@@ -85,4 +90,3 @@ install(TARGETS
 	compare_octrees
 	${INSTALL_TARGETS_DEFAULT_ARGS}
 )
-
